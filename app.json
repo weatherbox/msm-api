@@ -1,0 +1,6 @@
+{
+  "name": "MSM API",
+  "description": "",
+  "repository": "https://github.com/weatherbox/msm-api",
+  "keywords": ["python", "flask" ]
+}
