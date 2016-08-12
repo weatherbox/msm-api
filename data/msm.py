@@ -7,8 +7,6 @@ GRIB2 documentation: http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc.shtml
 """
 
 import sys
-from io import BytesIO
-import struct
 import numpy as np
 
 
@@ -22,7 +20,7 @@ class MSM:
         msm = {}
 
         msm['sec0'] = self.parse_section0()
-        msm['sec1']= self.parse_section1()
+        msm['sec1'] = self.parse_section1()
         msm['sec3'], msm['grid'] = self.parse_section3()
         msm['data'] = []
 
@@ -40,6 +38,17 @@ class MSM:
                 'sec7': sec7
             })
 
+            print '-'.join([
+                str(pdt['forecast_time'][0]),
+                self.level(
+                    pdt['first_fixed_surface_type'],
+                    pdt['first_fixed_surface_scale_factor'],
+                    pdt['first_fixed_surface_scale_value']),
+                self.parameter(
+                    pdt['parameter_category'],
+                    pdt['parameter_number'])
+            ])
+   
         return msm
 
 
@@ -233,6 +242,56 @@ class MSM:
         else:
             self.fileptr.seek(-4, 1) # back to previous point
             return False
+
+    def parameter(self, category, number):
+        params = {
+            0: {
+                'category': 'Temperture',
+                0: 'TMP'
+            },
+            1: {
+                'category': 'Moisture',
+                1: 'RH',
+                8: 'APCP'
+            },
+            2: {
+                'category': 'Momentum',
+                2: 'UGRD',
+                3: 'VGRD',
+                8: 'VVEL'
+            },
+            3: {
+                'category': 'Mass',
+                0: 'PRES',
+                1: 'PRMSL',
+                5: 'HGT'
+            },
+            6: {
+                'category': 'Cloud',
+                1: 'TCDC',
+                3: 'LCDC',
+                4: 'MCDC',
+                5: 'HCDC'
+            }
+        }
+        return params[category[0]][number[0]]
+
+
+    def level(self, type, scale_factor, scale_value):
+        if type == 1:
+            return 'Surface' # Ground or Water Surface
+
+        elif type == 101:
+            return 'Surface' # Mean Sea Level
+
+        elif type == 103:
+            return 'Surface' # Special Height Above Ground
+
+        elif type == 100: # Isobaric Surface
+            return str(scale_value[0])
+
+        else:
+            return
 
 
 if __name__ == '__main__':
