@@ -23,7 +23,7 @@ def msm_to_redis(file, redis):
 
     while not msm.is_end_section():
         sec4, pdt = msm.parse_section4()
-        sec5, drt = msm.parse_section5()
+        sec5, drt, bin_RED = msm.parse_section5(True)
         msm.parse_section6() # not used
         sec7, data = msm.parse_section7()
 
@@ -40,11 +40,7 @@ def msm_to_redis(file, redis):
         ])
 
         print key
-        redis.hmset(key + ':meta', {
-            'R': drt['R'][0],
-            'E': drt['E'][0],
-            'D': drt['D'][0]
-        })
+        redis.set(key + ':RED', bin_RED)
         redis.set(key + ':data', data)
     
 

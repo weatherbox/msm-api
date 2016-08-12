@@ -188,7 +188,7 @@ class MSM:
             return np.fromfile(self.fileptr, dtype=np.dtype(product_definition_template_4_8), count=1)
 
 
-    def parse_section5(self):
+    def parse_section5(self, bin_RED_flag):
         section5_dtype = np.dtype([
             ('length', '>u4'),
             ('section_number', 'u1'),
@@ -198,7 +198,7 @@ class MSM:
 
         # data representation tmeplate 5.0 - simple packing
         drt_5_0 = np.dtype([
-            ('R', 'f4'),
+            ('R', '>f4'),
             ('E', '>u2'),
             ('D', '>u2'),
             ('num_bits', 'u1'),
@@ -208,7 +208,15 @@ class MSM:
         sec5 = np.fromfile(self.fileptr, dtype=section5_dtype, count=1)
         
         if sec5['data_representation_template'] == 0: 
-            return sec5, np.fromfile(self.fileptr, dtype=drt_5_0, count=1)
+            drt = np.fromfile(self.fileptr, dtype=drt_5_0, count=1)
+
+            if bin_RED_flag:
+                self.fileptr.seek(-10, 1) # back to drt start
+                bin_RED = self.fileptr.read(8) # R 4byte, E 2byte, D 2byte
+                self.fileptr.seek(2, 1) # end of drt
+                return sec5, drt, bin_RED
+            else:
+                return sec5, drt
 
         else:
             raise Exception('unknown data representation template')
