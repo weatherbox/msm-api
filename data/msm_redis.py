@@ -26,6 +26,10 @@ class MsmRedis:
         self.redis = redis
 
 
+    def get_ref_time(self):
+        return self.redis.get('msm:ref_time')
+
+
     def get(self, ft, level, element, lat, lon):
         grid = self.surf if level == 'Surface' else self.pall
 

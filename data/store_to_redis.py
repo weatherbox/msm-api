@@ -14,13 +14,13 @@ def msm_to_redis(file, redis):
     date = datetime.datetime(
         sec1['year'][0],        
         sec1['month'][0],        
-        sec1['day'][0],        
-        sec1['hour'][0],        
-        sec1['minute'][0],        
-        sec1['second'][0],        
+        sec1['day'][0],
+        sec1['hour'][0],
+        sec1['minute'][0],
+        sec1['second'][0]
     )
     print date
-    redis.set("msm:ref_time", date)
+    redis.set("msm:ref_time", date.strftime('%Y%m%d%H%M'))
 
     while not msm.is_end_section():
         sec4, pdt = msm.parse_section4()
