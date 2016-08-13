@@ -1,0 +1,34 @@
+FORMAT: 1A
+HOST: http://msmapi.apiblueprint.org/
+
+# msm-api
+
+API for weather data model: JMA MSM
+
+## Get data [/data/{ref_time}/{ft}/{level}/{element}/{lat}/{lon}]
+
+### Get a data at point [GET]
+
++ Parameters 
+    + ref_time: current (string) - data reference time
+        + `current` the latest data
+        + `yyyymmddhh`
+    + ft: 0 (number) - forecast time in hours
+    + level: surface - level
+        + `surface`
+        + `1000`
+    + element: TMP (string) - physical quantity abbrev
+    + lat: 35.1 (number) - latitude
+    + lon: 135.2 (number) - longitude
+
++ Response 200 (application/json)
+
+        {
+            "ref_time": "2016081415",
+            "ft": 0,
+            "level": "surface",
+            "element", "TMP",
+            "data": 295.9
+        }
+
+# Available data elements
