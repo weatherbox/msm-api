@@ -82,7 +82,10 @@ class MsmRedis:
 
 if __name__ == '__main__':
     import redis
-    redis = redis.Redis(host='192.168.33.11')
+    import os
+    redis = redis.Redis(
+        host=os.environ.get('REDIS_HOST'),
+        password=os.environ.get('REDIS_PASS'))
     msm = MsmRedis(redis)
 
     print msm.get('0', 'Surface', 'TMP', 35, 135)
