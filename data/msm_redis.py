@@ -33,20 +33,22 @@ class MsmRedis:
         if lat > self.la1 or lat < self.la2 or lon < self.lo1 or lon > self.lo2:
             return None
 
+        # calculate grid pos
         x = math.floor((lon - self.lo1) / grid['dx'])
         y = math.floor((self.la1 - lat) / grid['dy']) 
         n = y * grid['nx'] + x
         nbyte = int(math.floor(n * self.nbit / 8))
 
+        # get from redis
         key = ':'.join(['msm', ft, level, element])
         packing_RED = self.redis.get(key + ':RED')
         data = self.redis.getrange(key + ':data', nbyte, nbyte + 1) # get 16bit data
-        value = struct.unpack('>H', data)[0]
 
         if not(data and packing_RED):
             return None
 
         # 16bit -> 12bit
+        value = struct.unpack('>H', data)[0]
         if n % 2 == 0:
             value = value >> 4
         else:
