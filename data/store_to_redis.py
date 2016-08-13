@@ -1,5 +1,6 @@
 import redis
 import sys
+import os
 from msm import MSM
 import datetime
 
@@ -46,7 +47,9 @@ def msm_to_redis(file, redis):
 
 if __name__ == '__main__':
     date = sys.argv[1]
-    redis = redis.Redis()
+    redis = redis.Redis(
+        host=os.environ.get('REDIS_HOST'),
+        password=os.environ.get('REDIS_PASS'))
     
     filetypes = [
         "Lsurf_FH00-15", "Lsurf_FH16-33", "Lsurf_FH34-39",
