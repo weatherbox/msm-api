@@ -88,8 +88,8 @@ if __name__ == '__main__':
         password=os.environ.get('REDIS_PASS'))
     msm = MsmRedis(redis)
 
-    print msm.get('0', 'Surface', 'TMP', 35, 135)
-    print msm.get('0', 'Surface', 'PRMSL', 35, 135)
-    print msm.get('0', 'Surface', 'TMP', 40, 135)
+    print msm.get('0', 'surface', 'TMP', 35, 135)
+    print msm.get('0', 'surface', 'PRMSL', 35, 135)
+    print msm.get('0', 'surface', 'TMP', 40, 135)
     print msm.get('0', '100', 'TMP', 35, 135)
 

@@ -287,13 +287,13 @@ class MSM:
 
     def level(self, type, scale_factor, scale_value):
         if type == 1:
-            return 'Surface' # Ground or Water Surface
+            return 'surface' # Ground or Water Surface
 
         elif type == 101:
-            return 'Surface' # Mean Sea Level
+            return 'surface' # Mean Sea Level
 
         elif type == 103:
-            return 'Surface' # Special Height Above Ground
+            return 'surface' # Special Height Above Ground
 
         elif type == 100: # Isobaric Surface
             return str(scale_value[0])
