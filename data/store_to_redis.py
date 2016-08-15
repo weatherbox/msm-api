@@ -44,10 +44,8 @@ def msm_to_redis(file, redis):
         redis.set(key + ':RED', bin_RED)
         redis.set(key + ':data', data)
     
-
-if __name__ == '__main__':
-    date = sys.argv[1]
-    redis = redis.Redis(
+def store_to_redis(dete):
+    r = redis.Redis(
         host=os.environ.get('REDIS_HOST'),
         password=os.environ.get('REDIS_PASS'))
     
@@ -57,8 +55,23 @@ if __name__ == '__main__':
     ]
 
     for filetype in filetypes:
-        filename = "Z__C_RJTD_" + date + "00_MSM_GPV_Rjp_" + filetype + "_grib2.bin"
-        msm_to_redis(filename, redis)
+        filename = "msm/Z__C_RJTD_" + date + "00_MSM_GPV_Rjp_" + filetype + "_grib2.bin"
+        msm_to_redis(filename, r)
 
 
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        date = sys.argv[1]
+        store_to_redis(date)
+
+    else:
+        now = datetime.datetime.utcnow()
+        dh = now.hour % 3 + 3
+        d = now - datetime.timedelta(hours=dh)
+        date = d.strftime('%Y%m%d%H00')
+        print date
+
+        import download
+        download.download(date)
+        store_to_redis(date)
 
