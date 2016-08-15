@@ -63,7 +63,7 @@ class MsmRedis:
 
     def unpack_simple(self, x, packing_RED):
         d = struct.unpack('>f 2H', packing_RED)
-        x = float(self.neg12(x))
+        x = float(x)
         R = d[0]
         E = float(self.neg16(d[1]))
         D = float(self.neg16(d[2]))
@@ -72,11 +72,6 @@ class MsmRedis:
 
 
     # first bit indicates negative number
-    def neg12(self, x):
-        if x & 0b100000000000 > 0:
-            x = (x & 0b011111111111) * -1
-        return x
-
     def neg16(self, x):
         if x & 0b1000000000000000 > 0:
             x = (x & 0b0111111111111111) * -1
