@@ -29,8 +29,17 @@ class MsmRedis:
     def get_ref_time(self):
         return self.redis.get('msm:ref_time')
 
+    def key(self, ft, level, element):
+        return ':'.join(['msm', ft, level, element])
+
 
     def get(self, ft, level, element, lat, lon):
+        n = self.calculate_grid(level, lat, lon)
+        key = self.key(ft, level, element)
+        return self.get_from_redis(key, n)
+
+
+    def calculate_grid(self, level, lat, lon):
         grid = self.surf if level == 'Surface' else self.pall
 
         # bounds check
@@ -41,11 +50,12 @@ class MsmRedis:
         x = math.floor((lon - self.lo1) / grid['dx'])
         y = math.floor((self.la1 - lat) / grid['dy']) 
         n = y * grid['nx'] + x
-        nbyte = int(math.floor(n * self.nbit / 8))
+        return n
 
-        # get from redis
-        key = ':'.join(['msm', ft, level, element])
+
+    def get_from_redis(self, key, n):
         packing_RED = self.redis.get(key + ':RED')
+        nbyte = int(math.floor(n * self.nbit / 8))
         data = self.redis.getrange(key + ':data', nbyte, nbyte + 1) # get 16bit data
 
         if not(data and packing_RED):
