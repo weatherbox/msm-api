@@ -27,5 +27,38 @@ def data(ref_time, ft, level, element, lat, lon):
     }
     return jsonify(res)
 
+@app.route('/sounding/<ref_time>/<ft>/<float:lat>/<float:lon>')
+def sounding(ref_time, ft, lat, lon):
+    ref_time = msm.get_ref_time()
+
+    res = {
+        'ref_time': ref_time,
+        'ft': ft,
+        'levels': {}
+    }
+
+    # surface
+    res['levels']['surface'] = {}
+    for e in ['TMP', 'RH', 'UGRD', 'VGRD', 'PRES']:
+        res['levels']['surface'][e] = msm.get(ft, 'surface', e, lat, lon)
+
+    # 1000 - 300
+    mid = ['1000', '975', '950', '925', '900', '850']
+    mid += [str(x) for x in range(800, 299, -100)]
+    for level in mid:
+        res['levels'][level] = {}
+        for e in ['TMP', 'RH', 'UGRD', 'VGRD', 'HGT']:
+            res['levels'][level][e] = msm.get(ft, level, e, lat, lon)
+
+    # 250 - 100
+    for level in [str(x) for x in range(250, 99, -50)]:
+        res['levels'][level] = {}
+        for e in ['TMP', 'UGRD', 'VGRD', 'HGT']:
+            res['levels'][level][e] = msm.get(ft, level, e, lat, lon)
+
+    return jsonify(res)
+
+
 if __name__ == '__main__':
     app.run()
+
