@@ -39,8 +39,36 @@ class MsmRedis:
         return self.get_from_redis(key, n)
 
 
+    # get many elements using pipeline
+    # elements is list of [ft, level, element, lat, lon]
+    def get_pipe(self, elements):
+        pipe = self.redis.pipeline(transaction=False)
+        pipe.get('msm:ref_time')
+        ns = [] # use unpacking
+
+        for elem in elements:
+            n = self.calculate_grid(elem[1], elem[3], elem[4])
+            key = self.key(elem[0], elem[1], elem[2])
+            nbyte = int(math.floor(n * self.nbit / 8))
+
+            ns.append(n)
+            packing_RED = pipe.get(key + ':RED')
+            data = pipe.getrange(key + ':data', nbyte, nbyte + 1)
+
+        values = pipe.execute()
+        ref_time = values[0]
+        res = []
+
+        for i, n in enumerate(ns):
+            RED  = values[2*i + 1]
+            data = values[2*i + 2]
+            res.append(self.decode_data(data, RED, n))
+
+        return ref_time, res
+
+
     def calculate_grid(self, level, lat, lon):
-        grid = self.surf if level == 'Surface' else self.pall
+        grid = self.surf if level == 'surface' else self.pall
 
         # bounds check
         if lat > self.la1 or lat < self.la2 or lon < self.lo1 or lon > self.lo2:
@@ -54,11 +82,14 @@ class MsmRedis:
 
 
     def get_from_redis(self, key, n):
-        packing_RED = self.redis.get(key + ':RED')
+        RED = self.redis.get(key + ':RED')
         nbyte = int(math.floor(n * self.nbit / 8))
         data = self.redis.getrange(key + ':data', nbyte, nbyte + 1) # get 16bit data
+        return self.decode_data(data, RED, n)
 
-        if not(data and packing_RED):
+
+    def decode_data(self, data, RED, n):
+        if not(data and RED):
             return None
 
         # 16bit -> 12bit
@@ -68,7 +99,7 @@ class MsmRedis:
         else:
             value = value & 0b0000111111111111
 
-        return self.unpack_simple(value, packing_RED)
+        return self.unpack_simple(value, RED)
 
 
     def unpack_simple(self, x, packing_RED):
