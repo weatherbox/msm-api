@@ -3,11 +3,11 @@ HOST: http://msmapi.apiblueprint.org/
 
 # msm-api
 
-API for weather data model: JMA MSM
+API for weather data from JMA MSM
 
-## Get data [/data/{ref_time}/{ft}/{level}/{element}/{lat}/{lon}]
+## Point data [/data/{ref_time}/{ft}/{level}/{element}/{lat}/{lon}]
 
-### Get a data at point [GET]
+### GET [GET]
 
 + Parameters 
     + ref_time: current (string) - data reference time
@@ -27,8 +27,53 @@ API for weather data model: JMA MSM
             "ref_time": "2016081415",
             "ft": 0,
             "level": "surface",
-            "element", "TMP",
-            "data": 295.9
+            "element": "TMP",
+            "value": 295.9
         }
 
-# Available data elements
+## Sounding data [/sounding/{ref_time}/{ft}/{lat}/{lon}]
+
+### GET [GET]
+
++ Parameters 
+    + ref_time: current (string) - data reference time
+        + `current` the latest data
+        + `yyyymmddhh`
+    + ft: 0 (number) - forecast time in hours
+    + lat: 35.1 (number) - latitude
+    + lon: 135.2 (number) - longitude
+    
++ Response 200 (application/json)
+    + Elements
+        + surface    `TMP` `RH` `wind` `PRES`
+        + 1000 - 300 `TMP` `RH` `wind` `HGT`
+        + 250 - 100  `TMP` `wind` `HGT`
+
+    + Body
+
+            {
+                "ref_time": "2016081415",
+                "ft": 0,
+                "levels": {
+                    "surface": {
+                        "TMP": 295.9,
+                        "RH": 72.3,
+                        "UGRD": 1.1,
+                        "VGRD": 0.2,
+                        "PRES": 1013.01
+                    },
+                    "1000": {
+                        "TMP": 290.2,
+                        "RH": 72.3,
+                        "UGRD": 10.1,
+                        "VGRD": 2.2,
+                        "HGT": 111
+                    },
+                    "100": {
+                        "TMP": 200.2,
+                        "UGRD": 20.1,
+                        "VGRD": 10.2,
+                        "HGT": 16180
+                    }
+                }
+            }
