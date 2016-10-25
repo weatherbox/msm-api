@@ -54,7 +54,7 @@ def sounding(ref_time, ft, lat, lon):
     # get from redis pipeline
     ref_time, values = msm.get_pipe(elements)
 
-    for i,v in enumerate(values):
+    for i,v in enumerate(values.values()):
         e = elements[i]
         levels[e[1]][e[2]] = v
 

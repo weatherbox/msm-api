@@ -44,6 +44,7 @@ class MsmRedis:
     def get_pipe(self, elements):
         pipe = self.redis.pipeline(transaction=False)
         pipe.get('msm:ref_time')
+        keys = []
         ns = [] # use unpacking
 
         for elem in elements:
@@ -51,18 +52,19 @@ class MsmRedis:
             key = self.key(elem[0], elem[1], elem[2])
             nbyte = int(math.floor(n * self.nbit / 8))
 
+            keys.append(key)
             ns.append(n)
             packing_RED = pipe.get(key + ':RED')
             data = pipe.getrange(key + ':data', nbyte, nbyte + 1)
 
         values = pipe.execute()
         ref_time = values[0]
-        res = []
+        res = {}
 
         for i, n in enumerate(ns):
             RED  = values[2*i + 1]
             data = values[2*i + 2]
-            res.append(self.decode_data(data, RED, n))
+            res[keys[i]] = self.decode_data(data, RED, n)
 
         return ref_time, res
 
