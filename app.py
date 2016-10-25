@@ -12,7 +12,7 @@ msm = msm_redis.MsmRedis(redis)
 
 @app.route('/')
 def index():
-    return jsonify({'message': 'It works!'})
+    return jsonify({'message': 'Welcome to msm-api! See the api document http://docs.msmapi.apiary.io/'})
 
 @app.route('/data/<ref_time>/<ft>/<level>/<element>/<float:lat>/<float:lon>')
 def data(ref_time, ft, level, element, lat, lon):
@@ -67,5 +67,6 @@ def sounding(ref_time, ft, lat, lon):
 
 
 if __name__ == '__main__':
+    app.debug = True
     app.run()
 
