@@ -30,7 +30,7 @@ class MsmRedis:
         return self.redis.get('msm:ref_time')
 
     def key(self, ft, level, element):
-        return ':'.join(['msm', ft, level, element])
+        return ':'.join(['msm', str(ft), level, element])
 
 
     def get(self, ft, level, element, lat, lon):

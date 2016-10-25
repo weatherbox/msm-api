@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 import os
 import redis
 from data import msm_redis
+import units
 
 app = Flask(__name__)
 
@@ -63,6 +64,65 @@ def sounding(ref_time, ft, lat, lon):
         'ft': ft,
         'levels': levels
     }
+    return jsonify(res)
+
+
+@app.route('/sky/<ref_time>/<float:lat>/<float:lon>')
+def sky(ref_time, lat, lon):
+    elements = []
+    upper_levels = ['975', '950', '925', '900', '850']
+
+    # upper wind
+    for ft in range(0, 40, 3):
+        for l in upper_levels:
+            elements.append([ft, l, 'UGRD', lat, lon])
+            elements.append([ft, l, 'VGRD', lat, lon])
+
+    # surface
+    for ft in range(0, 40):
+        for e in ['UGRD', 'VGRD', 'TMP', 'PRES', 'APCP', 'LCDC', 'MCDC', 'HCDC']:
+            elements.append([ft, 'surface', e, lat, lon])
+
+    ref_time, values = msm.get_pipe(elements)
+
+    upper_wind = []
+    for ft in range(0, 40, 3):
+        winds = { 'ft': ft }
+
+        for l in upper_levels:
+            u = values[msm.key(ft, l, 'UGRD')]
+            v = values[msm.key(ft, l, 'VGRD')]
+            wdir, speed = units.get_wind_dir_speed(u, v)
+            winds[l] = { 'from': wdir, 'speed': speed }
+
+        upper_wind.append(winds)
+
+    surface = []
+    for ft in range(0, 40):
+        u = values[msm.key(ft, 'surface', 'UGRD')]
+        v = values[msm.key(ft, 'surface', 'VGRD')]
+        wdir, speed = units.get_wind_dir_speed(u, v)
+
+        surface.append({
+            'ft': ft,
+            'wind': { 'from': wdir, 'speed': speed },
+            'temp': units.celsius(values[msm.key(ft, 'surface', 'TMP')]),
+            'pressure': values[msm.key(ft, 'surface', 'PRES')] / 100,
+            'rain':     values[msm.key(ft, 'surface', 'APCP')],
+            'clouds': {
+                'low':    values[msm.key(ft, 'surface', 'LCDC')],
+                'middle': values[msm.key(ft, 'surface', 'MCDC')],
+                'high':   values[msm.key(ft, 'surface', 'HCDC')]
+            }
+        })
+
+
+    res = {
+        'ref_time': ref_time,
+        'upper_wind': upper_wind,
+        'surface': surface
+    }
+
     return jsonify(res)
 
 
