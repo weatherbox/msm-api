@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: http://msmapi.apiblueprint.org/
+HOST: https://msm-api.herokuapp.com/
 
 # msm-api
 
@@ -18,8 +18,8 @@ API for weather data from JMA MSM
         + `surface`
         + `1000`
     + element: TMP (string) - physical quantity abbrev
-    + lat: 35.1 (number) - latitude
-    + lon: 135.2 (number) - longitude
+    + lat: 35.01 (number) - latitude
+    + lon: 135.77 (number) - longitude
 
 + Response 200 (application/json)
 
@@ -40,8 +40,8 @@ API for weather data from JMA MSM
         + `current` the latest data
         + `yyyymmddhh`
     + ft: 0 (number) - forecast time in hours
-    + lat: 35.1 (number) - latitude
-    + lon: 135.2 (number) - longitude
+    + lat: 35.01 (number) - latitude
+    + lon: 135.77 (number) - longitude
     
 + Response 200 (application/json)
     + Elements
@@ -76,4 +76,57 @@ API for weather data from JMA MSM
                         "HGT": 16180
                     }
                 }
+            }
+
+
+## Sky data [/sky/{ref_time}/{lat}/{lon}]
+
+### GET [GET]
+
++ Parameters 
+    + ref_time: current (string) - data reference time
+        + `current` the latest data
+        + `yyyymmddhh`
+    + lat: 35.01 (number) - latitude
+    + lon: 135.77 (number) - longitude
+    
++ Response 200 (application/json)
+    + Elements
+        + upper_wind `975` `950` `925` `900` `850` each 3h
+        + surface `wind` `TMP` `PRES` `APCP` `LCDC` `MCDC` `HCDC` each 1h
+
+    + Units
+        + wind 
+            - from 272 `deg`
+            - speed 2.1 `m/s`
+        + temp 15.2 `℃`
+        + rain 0.3 `mm/h`
+        + presure 1013 `hPa`
+        + clouds 73 `%`
+            - low
+            - middle
+            - high
+        
+        
+    + Body
+
+            {
+                "ref_time": "2016081415",
+                "upper_wind": [
+                    {
+                        "ft": 0,
+                        "850": { "from": 230, "speed": 9.2 },
+                        "975": { "from": 273, "speed": 2.0 }
+                    }
+                ],
+                "surface": [
+                    {
+                        "ft": 1,
+                        "wind": { "from": 0, "speed": 0.1 }
+                        "temp": 15.2,
+                        "rain": 0.3,
+                        "pressure": 1003
+                        "clouds": { "low": 0, "middle": 30, "high": 70 }
+                    }
+                ]
             }
