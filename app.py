@@ -70,7 +70,7 @@ def sounding(ref_time, ft, lat, lon):
 @app.route('/sky/<ref_time>/<float:lat>/<float:lon>')
 def sky(ref_time, lat, lon):
     elements = []
-    upper_levels = ['975', '950', '925', '900', '850']
+    upper_levels = ['1000', '975', '950', '900', '850']
 
     # upper wind
     for ft in range(0, 40, 3):
