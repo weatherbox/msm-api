@@ -1,10 +1,12 @@
 from flask import Flask, jsonify
+from flask_cors import CORS, cross_origin
 import os
 import redis
 from data import msm_redis
 import units
 
 app = Flask(__name__)
+CORS(app)
 
 redis = redis.Redis(
     host=os.environ.get('REDIS_HOST'),
