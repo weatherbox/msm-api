@@ -1,4 +1,4 @@
+.chalice/deployments/
+.chalice/venv/
+
 *.pyc
-*.pyo
-*.bin
-venv

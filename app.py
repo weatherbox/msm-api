@@ -1,36 +1,37 @@
-from flask import Flask, jsonify
-from flask_cors import CORS, cross_origin
+from chalice import Chalice
+
 import os
 import redis
-from data import msm_redis
-import units
 
-app = Flask(__name__)
-CORS(app)
+from chalicelib import msm_redis
+from chalicelib import units
+
+app = Chalice(app_name='msm-api')
+app.debug = True
 
 redis = redis.Redis(
     host=os.environ.get('REDIS_HOST'),
     password=os.environ.get('REDIS_PASS'))
 msm = msm_redis.MsmRedis(redis)
 
-@app.route('/')
-def index():
-    return jsonify({'message': 'Welcome to msm-api! See the api document http://docs.msmapi.apiary.io/'})
 
-@app.route('/data/<ref_time>/<ft>/<level>/<element>/<float:lat>/<float:lon>')
+@app.route('/', cors=True)
+def index():
+    return {'message': 'Welcome to msm-api! See the api document http://docs.msmapi.apiary.io/'}
+
+@app.route('/data/{ref_time}/{ft}/{level}/{element}/{lat}/{lon}', cors=True)
 def data(ref_time, ft, level, element, lat, lon):
     ref_time = msm.get_ref_time()
     value = msm.get(ft, level, element, lat, lon)
-    res = {
+    return {
         'ref_time': ref_time,
         'ft': ft,
         'level': level,
         'element': element,
         'value': value
     }
-    return jsonify(res)
 
-@app.route('/sounding/<ref_time>/<ft>/<float:lat>/<float:lon>')
+@app.route('/sounding/{ref_time}/{ft}/{lat}/{lon}', cors=True)
 def sounding(ref_time, ft, lat, lon):
     elements = []
     levels = {}
@@ -61,15 +62,14 @@ def sounding(ref_time, ft, lat, lon):
         e = elements[i]
         levels[e[1]][e[2]] = v
 
-    res = {
+    return {
         'ref_time': ref_time,
         'ft': ft,
         'levels': levels
     }
-    return jsonify(res)
 
 
-@app.route('/sky/<ref_time>/<float:lat>/<float:lon>')
+@app.route('/sky/{ref_time}/{lat}/{lon}', cors=True)
 def sky(ref_time, lat, lon):
     elements = []
     upper_levels = ['1000', '975', '950', '900', '850']
@@ -119,16 +119,9 @@ def sky(ref_time, lat, lon):
         })
 
 
-    res = {
+    return {
         'ref_time': ref_time,
         'upper_wind': upper_wind,
         'surface': surface
     }
-
-    return jsonify(res)
-
-
-if __name__ == '__main__':
-    app.debug = True
-    app.run()
 
