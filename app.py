@@ -22,7 +22,7 @@ def index():
 @app.route('/data/{ref_time}/{ft}/{level}/{element}/{lat}/{lon}', cors=True)
 def data(ref_time, ft, level, element, lat, lon):
     ref_time = msm.get_ref_time()
-    value = msm.get(ft, level, element, lat, lon)
+    value = msm.get(ft, level, element, float(lat), float(lon))
     return {
         'ref_time': ref_time,
         'ft': ft,
@@ -35,6 +35,7 @@ def data(ref_time, ft, level, element, lat, lon):
 def sounding(ref_time, ft, lat, lon):
     elements = []
     levels = {}
+    lat, lon = float(lat), float(lon)
 
     # surface
     levels['surface'] = {}
@@ -72,6 +73,7 @@ def sounding(ref_time, ft, lat, lon):
 @app.route('/sky/{ref_time}/{lat}/{lon}', cors=True)
 def sky(ref_time, lat, lon):
     elements = []
+    lat, lon = float(lat), float(lon)
     upper_levels = ['1000', '975', '950', '900', '850']
 
     # upper wind
