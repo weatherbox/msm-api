@@ -274,6 +274,10 @@ class MSM:
                 1: 'PRMSL',
                 5: 'HGT'
             },
+            4: {
+                'category': 'Short-wave radiation',
+                7: 'DSWRF' # Downward Short-Wave Radiation Flux
+            },
             6: {
                 'category': 'Cloud',
                 1: 'TCDC',
@@ -282,7 +286,9 @@ class MSM:
                 5: 'HCDC'
             }
         }
-        return params[category[0]][number[0]]
+
+        if category[0] in params:
+            return params[category[0]][number[0]]
 
 
     def level(self, type, scale_factor, scale_value):
